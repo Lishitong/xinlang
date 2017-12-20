@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <style media="screen">
+      *{
+        margin: 0;
+        padding: 0;
+      }
+      body{
+        width: 100%;
+        background: url(imgs/body_bg.jpg) no-repeat;
+        background-color: #f6e9d4;
+      }
+      textarea{
+        resize: none;
+      }
+      a{
+        text-decoration:none;
+        color: #ff001e;
+        font-size: 12px;
+      }
+      .clearfix:after,.clearfix:before{
+        display: table;
+        content:'';
+        clear: both;
+      }
+      #wrap{
+        width: 1200px;
+        margin: 0 auto;
+        background-color: rgba(209, 187, 172, 0.5);
+        padding-bottom:200px;
+      }
+      #dynamic{
+        width: 920px;
+        margin: 0 auto;
+        margin-top: 25px;
+        margin-bottom: 40px;
+        padding:20px;
+        text-align: right;
+        background-color: #fff;
+        overflow: hidden;
+      }
+      #username{
+        width: 150px;
+        padding-left: 10px;
+        float: left;
+        height: 18px;
+      }
+      #text {
+        width: 920px;
+        height: 150px;
+        border-color:#808080;
+        margin:20px 0 18px 0;
+        resize: none;
+        font-size: 16px;
+      }
+      #text:focus{
+        outline-color: #f61e65;
+        border-color:transparent;
+      }
+      .img {
+        float: left;
+        margin-left: 50px;
+        vertical-align: top;
+      }
+      li{
+        list-style:none;
+        width: 60px;
+        height: 40px;
+        float: left;
+        margin-left: 5px;
+        line-height: 40px;
+      }
+      li>span,li>img{
+        cursor:pointer;
+        vertical-align: middle;
+      }
+      li>span:hover,li>img:hover+span{
+        color: #ff001e;
+      }
+      #dynamic>p{
+        float: right;
+        width: 150px;
+      }
+      #dynamic>p label{
+        color:#808080;
+      }
+      #publish {
+        display: inline-block;
+        width: 80px;
+        height: 40px;
+        background-color: #ff824b;
+        border-radius:6px;
+        text-align: center;
+        line-height: 40px;
+        color: #fff;
+        font-size: 18px;
+        margin-left: 10px;
+        cursor:pointer;
+      }
+      #content{
+        width: 960px;
+        margin: 0 auto;
+
+      }
+      .item {
+        background-color: #fff;
+        margin-bottom:25px;
+        padding-bottom:20px;
+        position: relative;
+        overflow: hidden;
+      }
+      .avatar{
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        float: left;
+        overflow: hidden;
+        margin:10px;
+      }
+      .avatar>img{
+        width: 60px;
+        height: 60px;
+      }
+      .userName{
+        font-size: 25px;
+        font-weight: 700;
+        color: #333140;
+        margin-top: 10px;
+      }
+      .date{
+        color: #808080;
+        font-size: 14px;
+        margin: 10px 0;
+      }
+      .contText{
+        width:870px;
+        padding-right: 10px;
+        float: right;
+      }
+      .dele{
+        position:absolute;
+        top: 10px;
+        right: 20px;
+        cursor: pointer;
+      }
+      .dele:hover{
+        color: red;
+      }
+    </style>
+    <script type="text/javascript">
+      window.onload = function(){
+        function jsonP(obj){
+          var scriptTag = document.createElement('script');
+          scriptTag.type = 'text/javascript';
+          scriptTag.src = 'http://10.0.156.213:8888/'+ obj.url + '?' + 'username='+ obj.username + '&content=' + obj.text + '&callback=' + obj.callback + '&date=' + obj.dateFn +' 来自李大懒的小尾巴▄︻┻┳═一∵∴∷∶∵(∵_,∵)>>>>散弹发射！！'+ '&' + Math.random();
+          document.head.appendChild(scriptTag);
+        }
+        function dateFn(){
+          var date = new Date();
+          var month = date.getMonth() + 1;
+          var day = date.getDate();
+          var hours = date.getHours();
+          var minute = date.getMinutes();
+          var strDate = month + '月' + day + '日' + hours + '时' + minute +'分';
+          return strDate;
+        }
+        function createNodes(username,dateFn,text){
+          var item = document.createElement('div');
+          item.className = 'item';
+
+          content.insertBefore(item,content.childNodes[0]);
+          var dele = document.createElement('span');
+          dele.className = 'dele';
+          dele.innerHTML = 'X';
+          dele.onclick = function(){
+            jsonP({
+              url : 'delete',
+              username : username,
+              text : text,
+              callback : 'deleMsg'
+            });
+            deleMsg = function(obj){
+              // console.log(obj);
+              if (obj.err == 0) {
+                item.remove();
+              }else {
+                alert('删除失败,请稍候重试');
+                open();
+              }
+            };
+          }
+          item.appendChild(dele);
+          var avatar = document.createElement('p');
+          avatar.className = 'avatar';
+          avatar.innerHTML = '<img src="imgs/head-image.png" alt="">';
+          item.appendChild(avatar);
+          var userName = document.createElement('p');
+          userName.className = 'userName';
+          userName.innerHTML = username;
+          item.appendChild(userName);
+          var date = document.createElement('p');
+          date.className = 'date';
+          date.innerHTML = dateFn;
+          item.appendChild(date);
+          var contText = document.createElement('p');
+          contText.className = 'contText';
+          contText.innerHTML = text;
+          item.appendChild(contText);
+        }
+        function open(){
+          jsonP({
+            url : 'getalldata',
+            callback : 'itemFn'
+          });
+          itemFn = function (obj){
+            var content = document.querySelector('#content');
+            var dataArr = obj.data;
+            // console.log(dataArr);
+            for (var data of dataArr) {
+                createNodes(data.username,data.date,data.content);
+              }
+            }
+          }
+        open();
+
+        var publish = document.querySelector('#publish');
+        publish.onclick = function(){
+            var username = document.querySelector('#username');
+            var text = document.querySelector('#text');
+
+            if (username.value != '' && text.value != '') {
+              jsonP({
+                url:'sendMsg',
+                username : username.value,
+                text : text.value,
+                callback : 'sendFn',
+                dateFn : dateFn()
+              });
+              sendFn = function(obj){
+                // console.log(obj.err);
+                if (obj.err == 0) {
+                  createNodes(username.value,dateFn(),text.value);
+                  username.value = '';
+                  text.value = '';
+                  open();
+                }else {
+                  alert('发送失败,请稍候再试');
+                }
+              }
+            }else {
+              alert('请仔细检查参数是否完整');
+            }
+          }
+        };
+    </script>
+  </head>
+  <body>
+    <div id="wrap" class="clearfix">
+        <div id="dynamic">
+          <input type="text" id="username" placeholder="请输入用户名">
+          <img src="imgs/xx.png" alt="" class="img">
+          <a href="javascript:void(0)">置办年货省省省!</a>
+          <a href="javascript:void(0)">红包在手年货无忧!</a>
+          <a href="javascript:void(0)">点击领取年货红包</a>
+          <a href="javascript:void(0)">热门微博</a>
+          <textarea id="text"></textarea>
+          <ul>
+            <li>
+              <img src="imgs/wb1.png" alt="">
+              <span>表情</span>
+            </li>
+            <li>
+              <img src="imgs/wb2.png" alt="">
+              <span>图片</span>
+            </li>
+            <li>
+              <img src="imgs/wb3.png" alt="">
+              <span>视频</span>
+            </li>
+            <li>
+              <img src="imgs/wb4.png" alt="">
+              <span>话题</span>
+            </li>
+            <li>
+              <img src="imgs/wb5.png" alt="">
+              <span>文章</span>
+            </li>
+          </ul>
+          <p>
+            <label>公开</label>
+            <span id="publish">发布</span>
+          </p>
+        </div>
+        <div id="content">
+
+        </div>
+    </div>
+  </body>
+</html>
